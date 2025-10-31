@@ -9,8 +9,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { useDebounce } from '@/hooks/useDebounce';
-import { useEffect, useState, useRef } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import type { SearchNotesParams } from '@/types/notes';
 
 interface SearchBarProps {
@@ -20,15 +19,29 @@ interface SearchBarProps {
 
 export const SearchBar = ({ onSearchChange, searchParams }: SearchBarProps) => {
     const [query, setQuery] = useState(searchParams.query || '');
-    const debouncedQuery = useDebounce(query, 300);
-    const searchParamsRef = useRef(searchParams);
+    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Update ref when searchParams change
-    searchParamsRef.current = searchParams;
+    const debouncedSearch = useCallback(
+        (searchQuery: string) => {
+            if (debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
 
-    useEffect(() => {
-        onSearchChange({ ...searchParamsRef.current, query: debouncedQuery });
-    }, [debouncedQuery, onSearchChange]);
+            debounceTimeoutRef.current = setTimeout(() => {
+                onSearchChange({ ...searchParams, query: searchQuery });
+            }, 300);
+        },
+        [onSearchChange, searchParams]
+    );
+
+    const handleQueryChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const newQuery = e.target.value;
+            setQuery(newQuery);
+            debouncedSearch(newQuery);
+        },
+        [debouncedSearch]
+    );
 
     const handleSortChange = (sortBy: 'createdAt' | 'updatedAt' | 'title') => {
         const newOrder = searchParams.sortBy === sortBy && searchParams.sortOrder === 'desc' ? 'asc' : 'desc';
@@ -62,7 +75,7 @@ export const SearchBar = ({ onSearchChange, searchParams }: SearchBarProps) => {
                 <Input
                     placeholder='Search notes...'
                     value={query}
-                    onChange={e => setQuery(e.target.value)}
+                    onChange={handleQueryChange}
                     className='pl-10'
                 />
             </div>
