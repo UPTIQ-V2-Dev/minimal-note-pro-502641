@@ -13,6 +13,7 @@ export const useAutoSave = ({ value, onSave, delay = 1000, enabled = true }: Use
     const initialValueRef = useRef(value);
     const isFirstRender = useRef(true);
     const onSaveRef = useRef(onSave);
+    const prevEnabledRef = useRef(enabled);
 
     // Update the ref when onSave changes to avoid stale closures
     useEffect(() => {
@@ -39,11 +40,12 @@ export const useAutoSave = ({ value, onSave, delay = 1000, enabled = true }: Use
         stableOnSave(debouncedValue);
     }, [debouncedValue, stableOnSave, enabled]);
 
-    // Reset initial value when enabled state changes
+    // Reset initial value when enabled state changes from false to true
     useEffect(() => {
-        if (enabled) {
+        if (enabled && !prevEnabledRef.current) {
             initialValueRef.current = value;
             isFirstRender.current = true;
         }
+        prevEnabledRef.current = enabled;
     }, [enabled, value]);
 };
