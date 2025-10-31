@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useDebounce } from './useDebounce';
 
 interface UseAutoSaveProps {
@@ -12,6 +12,16 @@ export const useAutoSave = ({ value, onSave, delay = 1000, enabled = true }: Use
     const debouncedValue = useDebounce(value, delay);
     const initialValueRef = useRef(value);
     const isFirstRender = useRef(true);
+    const onSaveRef = useRef(onSave);
+
+    // Update the ref when onSave changes to avoid stale closures
+    useEffect(() => {
+        onSaveRef.current = onSave;
+    }, [onSave]);
+
+    const stableOnSave = useCallback((val: string) => {
+        onSaveRef.current(val);
+    }, []);
 
     useEffect(() => {
         // Don't save on initial render
@@ -26,8 +36,8 @@ export const useAutoSave = ({ value, onSave, delay = 1000, enabled = true }: Use
             return;
         }
 
-        onSave(debouncedValue);
-    }, [debouncedValue, onSave, enabled]);
+        stableOnSave(debouncedValue);
+    }, [debouncedValue, stableOnSave, enabled]);
 
     // Reset initial value when enabled state changes
     useEffect(() => {
