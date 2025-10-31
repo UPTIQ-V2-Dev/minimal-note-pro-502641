@@ -1,8 +1,8 @@
 import { Role } from '../generated/prisma/index.js';
 
 const allRoles = {
-    [Role.USER]: [],
-    [Role.ADMIN]: ['getUsers', 'manageUsers']
+    [Role.USER]: ['manageNotes'],
+    [Role.ADMIN]: ['getUsers', 'manageUsers', 'manageNotes']
 };
 
 export const roles = Object.keys(allRoles);

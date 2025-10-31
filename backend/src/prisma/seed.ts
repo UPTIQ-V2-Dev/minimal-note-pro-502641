@@ -21,6 +21,32 @@ async function main() {
     });
 
     console.log('✅ Created admin user:', admin.email);
+
+    // Create sample notes for the admin user
+    const note1 = await prisma.note.upsert({
+        where: { id: 'sample-note-1' },
+        update: {},
+        create: {
+            id: 'sample-note-1',
+            title: 'Welcome Note',
+            content: 'This is your first note! You can create, edit, and delete notes using the API.',
+            userId: admin.id
+        }
+    });
+
+    const note2 = await prisma.note.upsert({
+        where: { id: 'sample-note-2' },
+        update: {},
+        create: {
+            id: 'sample-note-2',
+            title: 'Meeting Notes',
+            content:
+                'Discussed project roadmap:\n\n1. Complete user authentication\n2. Implement notes feature\n3. Add API documentation\n4. Deploy to production',
+            userId: admin.id
+        }
+    });
+
+    console.log('✅ Created sample notes:', note1.title, 'and', note2.title);
 }
 
 main()

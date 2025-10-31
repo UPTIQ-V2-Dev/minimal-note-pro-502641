@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useNotes, useDeleteNote } from '@/hooks/useNotes';
+import { useAuth } from '@/hooks/useAuth';
 import { SearchBar } from '@/components/notes/SearchBar';
 import { NoteCard } from '@/components/notes/NoteCard';
 import { EmptyState } from '@/components/notes/EmptyState';
@@ -17,6 +18,7 @@ export const NotesListPage = () => {
 
     const { data: notesData, isLoading, error } = useNotes(searchParams);
     const deleteNoteMutation = useDeleteNote();
+    const { user, logout, isLoggingOut } = useAuth();
 
     const handleSearchChange = (newParams: SearchNotesParams) => {
         setSearchParams(newParams);
@@ -56,12 +58,23 @@ export const NotesListPage = () => {
                         {notes.length === 0 ? 'No notes yet' : `${notes.length} note${notes.length !== 1 ? 's' : ''}`}
                     </p>
                 </div>
-                <Button asChild>
-                    <Link to='/note/new'>
-                        <Plus className='h-4 w-4 mr-2' />
-                        New Note
-                    </Link>
-                </Button>
+                <div className='flex items-center gap-3'>
+                    <div className='text-sm text-muted-foreground'>{user?.email}</div>
+                    <Button asChild>
+                        <Link to='/note/new'>
+                            <Plus className='h-4 w-4 mr-2' />
+                            New Note
+                        </Link>
+                    </Button>
+                    <Button
+                        variant='outline'
+                        onClick={logout}
+                        disabled={isLoggingOut}
+                    >
+                        <LogOut className='h-4 w-4 mr-2' />
+                        {isLoggingOut ? 'Signing out...' : 'Sign Out'}
+                    </Button>
+                </div>
             </div>
 
             {/* Search and Filter */}

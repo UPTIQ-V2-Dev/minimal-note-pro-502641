@@ -8,11 +8,41 @@
 - Tailwind v4
 - TypeScript
 - React Query for state management
+- JWT Authentication with refresh tokens
 - Local Storage for persistence
 
 ## Application Structure
 
-### 1. Notes List Page (`/`)
+### 1. Login Page (`/login`)
+
+**Purpose**: User authentication interface
+
+**Components**:
+
+- `LoginPage` - Main login container component
+- `LoginForm` - Login form with email/password
+- `AuthLayout` - Authentication pages layout wrapper
+
+**Features**:
+
+- Email and password authentication
+- Form validation
+- Loading states
+- Error handling
+- Remember me functionality
+- Redirect to notes after successful login
+
+**API**:
+
+- POST `/auth/login` - User authentication
+- POST `/auth/refresh` - Refresh access token
+
+**Types**:
+
+- `LoginRequest` interface (email, password)
+- `AuthResponse` interface (user, tokens)
+
+### 2. Notes List Page (`/`) - Protected Route
 
 **Purpose**: Main dashboard showing all notes with search and filtering
 
@@ -40,7 +70,7 @@
 - `Note` interface (id, title, content, createdAt, updatedAt)
 - `NotesListProps`, `NoteCardProps`
 
-### 2. Note Editor Page (`/note/:id`, `/note/new`)
+### 3. Note Editor Page (`/note/:id`, `/note/new`) - Protected Route
 
 **Purpose**: Create and edit individual notes
 
@@ -68,11 +98,13 @@
 - `debounce` - For auto-save
 - `formatDate` - Date formatting
 
-### 3. Common Components & Layout
+### 4. Common Components & Layout
 
 **Layout Components**:
 
-- `AppLayout` - Main app wrapper
+- `AppLayout` - Main app wrapper for authenticated users
+- `AuthLayout` - Layout wrapper for authentication pages
+- `PrivateRoute` - Route wrapper for protected pages
 - `Header` - App title and navigation
 - `Sidebar` - Navigation (if needed)
 
@@ -82,10 +114,11 @@
 - `LoadingSpinner` - Loading states
 - `ErrorBoundary` - Error handling
 
-### 4. Hooks & Utils
+### 5. Hooks & Utils
 
 **Custom Hooks**:
 
+- `useAuth` - Authentication state management
 - `useNotes` - Notes CRUD operations
 - `useAutoSave` - Auto-save functionality
 - `useDebounce` - Debounce hook
@@ -96,7 +129,7 @@
 - `date.ts` - Date formatting utilities
 - `validation.ts` - Form validation schemas
 
-### 5. Types & Interfaces
+### 6. Types & Interfaces
 
 **Core Types**:
 
@@ -117,14 +150,15 @@ interface NotesContextType {
 }
 ```
 
-### 6. Services & API Layer
+### 7. Services & API Layer
 
 **Services**:
 
+- `authService.ts` - Authentication operations
 - `notesService.ts` - Notes CRUD operations
 - `storageService.ts` - Local storage management
 
-### 7. Styling & Theme
+### 8. Styling & Theme
 
 **Styling**:
 
@@ -141,12 +175,13 @@ interface NotesContextType {
 
 ## Implementation Phases
 
-### Phase 1: Core Structure
+### Phase 1: Authentication & Core Structure
 
-- Setup routing with React Router
-- Create basic layout components
-- Setup TypeScript types
-- Configure local storage service
+- Implement login page and authentication flow
+- Setup routing with protected routes
+- Create authentication layout components
+- Setup TypeScript types for auth
+- Configure JWT token management
 
 ### Phase 2: Notes List
 
@@ -183,6 +218,8 @@ interface NotesContextType {
 ```
 src/
 ├── components/
+│   ├── auth/
+│   │   └── LoginForm.tsx
 │   ├── notes/
 │   │   ├── NotesList.tsx
 │   │   ├── NoteCard.tsx
@@ -190,13 +227,17 @@ src/
 │   │   └── SearchBar.tsx
 │   ├── layout/
 │   │   ├── AppLayout.tsx
+│   │   ├── AuthLayout.tsx
+│   │   ├── PrivateRoute.tsx
 │   │   └── Header.tsx
 │   └── ui/ (existing shadcn components)
 ├── hooks/
+│   ├── useAuth.ts
 │   ├── useNotes.ts
 │   ├── useAutoSave.ts
 │   └── useDebounce.ts
 ├── services/
+│   ├── authService.ts
 │   ├── notesService.ts
 │   └── storageService.ts
 ├── types/
@@ -205,6 +246,7 @@ src/
 │   ├── date.ts
 │   └── validation.ts
 └── pages/
+    ├── LoginPage.tsx
     ├── NotesListPage.tsx
     └── NoteEditorPage.tsx
 ```

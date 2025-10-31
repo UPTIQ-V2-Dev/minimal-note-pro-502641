@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Trash2, Clock } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Clock, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useAutoSave } from '@/hooks/useAutoSave';
+import { useAuth } from '@/hooks/useAuth';
 import { formatRelativeDate } from '@/utils/date';
 import type { Note, CreateNoteInput, UpdateNoteInput } from '@/types/notes';
 
@@ -43,6 +44,8 @@ export const NoteEditor = ({
     const [content, setContent] = useState(note?.content || '');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [lastSaved, setLastSaved] = useState<string | null>(null);
+
+    const { user, logout, isLoggingOut } = useAuth();
 
     // Update local state when note prop changes
     useEffect(() => {
@@ -130,6 +133,22 @@ export const NoteEditor = ({
                     <h1 className='text-xl font-semibold'>{note ? 'Edit Note' : 'New Note'}</h1>
                 </div>
 
+                <div className='flex items-center gap-2'>
+                    <div className='text-sm text-muted-foreground mr-2'>{user?.email}</div>
+                    <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={logout}
+                        disabled={isLoggingOut}
+                    >
+                        <LogOut className='h-4 w-4 mr-1' />
+                        {isLoggingOut ? 'Signing out...' : 'Sign Out'}
+                    </Button>
+                </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className='flex items-center justify-end mb-6'>
                 <div className='flex items-center gap-2'>
                     {hasUnsavedChanges && (
                         <Badge
