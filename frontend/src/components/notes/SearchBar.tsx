@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { SearchNotesParams } from '@/types/notes';
 
 interface SearchBarProps {
@@ -21,10 +21,14 @@ interface SearchBarProps {
 export const SearchBar = ({ onSearchChange, searchParams }: SearchBarProps) => {
     const [query, setQuery] = useState(searchParams.query || '');
     const debouncedQuery = useDebounce(query, 300);
+    const searchParamsRef = useRef(searchParams);
+
+    // Update ref when searchParams change
+    searchParamsRef.current = searchParams;
 
     useEffect(() => {
-        onSearchChange({ ...searchParams, query: debouncedQuery });
-    }, [debouncedQuery, onSearchChange, searchParams]);
+        onSearchChange({ ...searchParamsRef.current, query: debouncedQuery });
+    }, [debouncedQuery, onSearchChange]);
 
     const handleSortChange = (sortBy: 'createdAt' | 'updatedAt' | 'title') => {
         const newOrder = searchParams.sortBy === sortBy && searchParams.sortOrder === 'desc' ? 'asc' : 'desc';
